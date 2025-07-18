@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mindset Assessment Quiz</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f4f6f8;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .quiz-container {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 2rem;
+      max-width: 600px;
+      width: 100%;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .question {
+      display: none;
+    }
+    .question.active {
+      display: block;
+    }
+    .answers label {
+      display: block;
+      margin: 0.5rem 0;
+      cursor: pointer;
+    }
+    .btn {
+      background: #0077cc;
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      margin-top: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+    }
+    .btn:hover {
+      background: #005fa3;
+    }
+    .result {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h1>Mindset Assessment</h1>
+    <form id="quiz-form"></form>
+    <div class="result" id="result" style="display:none;"></div>
+  </div>
+
+  <script>
+    const questions = [
+      { q: "I believe that intelligence is largely inborn and cannot be changed very much.", key: 1, type: "fixed" },
+      { q: "No matter what kind of person you are, it's always possible to make major changes for the better.", key: 2, type: "growth" },
+      { q: "I believe it's possible to substantially increase how intelligent you are.", key: 3, type: "growth" },
+      { q: "I don't think people can change who they truly are at their core.", key: 4, type: "fixed" },
+      { q: "It is always possible to change the basic things about the kind of person you are.", key: 5, type: "growth" },
+      { q: "I think musical ability is something anyone can learn.", key: 6, type: "growth" },
+      { q: "Talent is something you are born with, not something you can develop.", key: 7, type: "fixed" },
+      { q: "I believe math is much easier to learn if you are male or come from a culture that values math.", key: 8, type: "fixed" },
+      { q: "If I stay focused, work hard and smart, I can become the best at a skill regardless of natural ability.", key: 9, type: "growth" },
+      { q: "No matter what kind of person you are, you can always change substantially.", key: 10, type: "growth" },
+      { q: "Trying new things is stressful for me, so I avoid it.", key: 11, type: "fixed" },
+      { q: "Some people are good and kind, some aren’t. They rarely change.", key: 12, type: "fixed" },
+      { q: "I value it when coaches or coworkers give me feedback, even if it's negative.", key: 13, type: "growth" },
+      { q: "Because I have high standards, I dislike criticism about my performance.", key: 14, type: "fixed" },
+      { q: "All people (without injuries or defects) are capable of the same amount of learning.", key: 15, type: "growth" },
+      { q: "You can learn new things, but it won’t change how intelligent you are.", key: 16, type: "fixed" },
+      { q: "The really important parts of who you are—your talents and skills—can’t be changed.", key: 17, type: "fixed" },
+      { q: "People are fundamentally good but sometimes make terrible choices.", key: 18, type: "growth" },
+      { q: "I study because I enjoy learning and gaining skills.", key: 19, type: "growth" },
+      { q: "Some people are born smart and don’t need to work hard.", key: 20, type: "fixed" }
+    ];
+
+    const answerOptions = [
+      { text: "Strongly disagree", value: 3 },
+      { text: "Disagree", value: 2 },
+      { text: "Agree", value: 1 },
+      { text: "Strongly agree", value: 0 }
+    ];
+
+    const form = document.getElementById("quiz-form");
+    let current = 0;
+    let score = 0;
+
+    function renderQuestion() {
+      form.innerHTML = "";
+      const q = questions[current];
+      const qDiv = document.createElement("div");
+      qDiv.className = "question active";
+      qDiv.innerHTML = `<h2>Question ${current + 1}</h2><p>${q.q}</p>`;
+
+      const ansDiv = document.createElement("div");
+      ansDiv.className = "answers";
+
+      answerOptions.forEach((opt, i) => {
+        const scoreValue = q.type === "growth" ? opt.value : 3 - opt.value;
+        ansDiv.innerHTML += `
+          <label>
+            <input type="radio" name="q${q.key}" value="${scoreValue}" />
+            ${opt.text}
+          </label>`;
+      });
+
+      qDiv.appendChild(ansDiv);
+
+      const nextBtn = document.createElement("button");
+      nextBtn.type = "button";
+      nextBtn.className = "btn";
+      nextBtn.textContent = current < questions.length - 1 ? "Next" : "See Result";
+      nextBtn.onclick = () => {
+        const selected = form.querySelector("input[name='q" + q.key + "']:checked");
+        if (!selected) {
+          alert("Please select an answer before proceeding.");
+          return;
+        }
+        score += parseInt(selected.value);
+        current++;
+        if (current < questions.length) {
+          renderQuestion();
+        } else {
+          showResult();
+        }
+      };
+
+      qDiv.appendChild(nextBtn);
+      form.appendChild(qDiv);
+    }
+
+    function showResult() {
+      form.style.display = "none";
+      const resultDiv = document.getElementById("result");
+      resultDiv.style.display = "block";
+
+      let resultText = "";
+      if (score >= 45) {
+        resultText = `<h2>🌱 Growth Mindset</h2><p>You believe in learning, effort, and change. Keep growing!</p>`;
+      } else if (score >= 30) {
+        resultText = `<h2>🔄 Mixed Mindset</h2><p>You show growth potential, but may hold some limiting beliefs. Reflect and build confidence in your ability to grow.</p>`;
+      } else {
+        resultText = `<h2>🔒 Fixed Mindset</h2><p>You may believe abilities are static. With awareness, you can shift toward a more empowering mindset.</p>`;
+      }
+
+      resultDiv.innerHTML = `<h1>Your Result</h1><p><strong>Score:</strong> ${score}/60</p>${resultText}`;
+    }
+
+    renderQuestion();
+  </script>
+</body>
+</html>
